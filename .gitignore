@@ -1,0 +1,16 @@
+# Large datasets (exceed GitHub 100MB limit — keep locally)
+group-1-template/backend/sample_data/all_world_climate_data_from_1951_to_2025.csv
+group-1-template/frontend/vite-app/public/data/tum_hava_verileri_birlesik.csv
+group-1-template/frontend/vite-app/public/data/clustering/tum_hava_verileri_birlesik.csv
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Secrets / env backups
+group-1-template/backend/back.txt
+**/.env
+**/.env.*
+
+# Cache
+**/.cache.sqlite

@@ -1,0 +1,58 @@
+# This describes the individual services or simply containers to be built
+services:
+
+  react-frontend:
+    container_name: base-frontend
+    image: base-frontend:latest
+    build: # Build configuration
+      context: ./frontend
+      dockerfile: dev.Dockerfile
+    depends_on: # only start after this has started (careful might not be fully ready on start)
+      - python-backend
+    environment: # Environment variables and configurations (i.e., hot module reloading)
+      # File watching (reliable HMR in Docker)
+      - CHOKIDAR_USEPOLLING=true # Used by Vite and many libs to poll the filesystem instead of relying on inotify/fsevents
+      - WATCHPACK_POLLING=true # Some dependencies (like Webpack or libraries using watchpack) use this on top
+
+      # all of these need to have VITE_ in front, so it's exposed to the client bundle (no secrets obviously)
+      # Dev server host/port (vite.config.ts reads these)
+      - VITE_DEV_HOST=0.0.0.0
+      - VITE_DEV_PORT=3000
+
+      # Browser fetch() uses host port mapping (see README .env)
+      - VITE_BACKEND_API_URL=http://localhost:5001
+      # Vite dev server proxy must use Docker service DNS, not localhost inside the container
+      - DEV_PROXY_TARGET=http://python-backend:5001
+    ports: # Port mapping
+      - "3000:3000"
+    volumes:
+      # this maps the path before the colon (host) to that after (inside the container)
+      - ./frontend/vite-app:/vite-app
+      # Careful, here we just name the volume, since the first part isn't a valid path on the host, so no mapping.
+      # This name must be declared before as seen at the end of this YAML under "volumes:", otherwise its anonymous
+      - base-frontend-node_modules:/vite-app/node_modules
+
+  python-backend:
+    platform: linux/amd64
+    container_name: base-backend
+    image: base-backend:latest
+    build:
+      context: ./backend
+      dockerfile: dev.Dockerfile
+
+    env_file:
+      - ./backend/.env   # 👈 env file for openaikey
+    
+    ports:
+      - "5001:5001"
+      - "5678:5678" # debugpy
+    volumes:
+      - ./backend:/usr/src # mount the whole backend directory, so it's not just the app but incl. the data directories
+    environment:
+      - DEV_MODE=true # Enable development mode with hot reloading in the entrypoint.sh
+      - ROOT_PATH=/api # used for the redirect to work with the proxy
+
+# This declares the volume names to be used just for the container
+volumes:
+  base-frontend-node_modules:
+  # the full name will have the projects name (webdeploy-template_) prepended!

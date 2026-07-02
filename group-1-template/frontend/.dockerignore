@@ -1,0 +1,2 @@
+# ignore the node_modules so they don't inadvertantly override the installed packages when mounting as volume
+**/node_modules/

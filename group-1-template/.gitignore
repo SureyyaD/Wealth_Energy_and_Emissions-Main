@@ -1,0 +1,23 @@
+# IDE - VSCode
+**/__pycache__/*
+/.vscode
+/.env
+**/.env
+**/.ipynb_checkpoints/*
+
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# IDE - Pycharm
+**/.idea/*
+
+# Mac
+.DS_Store
+
+# NodeJS
+node_modules
+frontend/.vscode/launch.json
+
